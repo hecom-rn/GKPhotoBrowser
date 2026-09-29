@@ -240,6 +240,11 @@
             GKWebImageCompletionBlock completionBlock = ^(UIImage *image, NSURL *url, BOOL finished, NSError *error) {
                 __strong __typeof(weakSelf) strongSelf = weakSelf;
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    if (error && error.code == NSURLErrorCancelled) {
+                        // 翻页/复用触发的主动取消属于正常行为，不能按加载失败处理
+                        [strongSelf.loadingView stopLoading];
+                        return;
+                    }
                     if (error) {
                         photo.failed = YES;
                         [strongSelf.loadingView stopLoading];
